@@ -2,36 +2,67 @@
 
 import {
   SidebarGroup,
-  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
-import { LucideIcon } from 'lucide-react';
+import {
+  CreditCard,
+  Frame,
+  Image,
+  Images,
+  Layers,
+  Settings2,
+  SquareTerminal,
+} from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-export function NavMain({
-  items,
-}: {
-  items: {
-    title: string;
-    url: string;
-    icon?: LucideIcon;
-    isActive?: boolean;
-    items?: {
-      title: string;
-      url: string;
-    }[];
-  }[];
-}) {
+const navItems = [
+  {
+    title: 'Dashboard',
+    url: '/dashboard',
+    icon: SquareTerminal,
+  },
+  {
+    title: 'Generate Image',
+    url: '/image-generation',
+    icon: Image,
+  },
+  {
+    title: 'My Models',
+    url: '/models',
+    icon: Frame,
+  },
+  {
+    title: 'Train Model',
+    url: '/model-training',
+    icon: Layers,
+  },
+  {
+    title: 'My Images',
+    url: '/gallery',
+    icon: Images,
+  },
+  {
+    title: 'Billing',
+    url: '/billing',
+    icon: CreditCard,
+  },
+  {
+    title: 'Settings',
+    url: '/account-settings',
+    icon: Settings2,
+  },
+];
+
+export function NavMain() {
   const pathname = usePathname();
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Platform</SidebarGroupLabel>
       <SidebarMenu>
-        {items.map(item => (
+        {navItems.map(item => (
           <Link
             key={item.title}
             href={item.url}

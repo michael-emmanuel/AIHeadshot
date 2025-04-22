@@ -12,7 +12,7 @@ const LogoutBtn = () => {
       onClick={handleLogout}
       className='inline-block w-full cursor-pointer text-destructive'
     >
-      LogoutBtn
+      logout
     </span>
   );
 };
