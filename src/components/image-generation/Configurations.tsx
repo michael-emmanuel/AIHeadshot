@@ -30,7 +30,7 @@ import {
 } from '@/components/ui/tooltip';
 import { InfoIcon } from 'lucide-react';
 
-const formSchema = z.object({
+export const ImageGenerationFormSchema = z.object({
   model: z.string({
     required_error: 'Model is required!',
   }),
@@ -73,8 +73,8 @@ const formSchema = z.object({
 });
 
 const Configurations = () => {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof ImageGenerationFormSchema>>({
+    resolver: zodResolver(ImageGenerationFormSchema),
     defaultValues: {
       model: 'black-forest-labs/flux-dev',
       prompt: '',
@@ -88,7 +88,7 @@ const Configurations = () => {
   });
 
   // 2. Define a submit handler.
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  function onSubmit(values: z.infer<typeof ImageGenerationFormSchema>) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
     console.log(values);
@@ -172,10 +172,10 @@ const Configurations = () => {
                         <SelectItem value='21:9'>21:9</SelectItem>
                         <SelectItem value='9:21'>9:21</SelectItem>
                         <SelectItem value='4:5'>4:5</SelectItem>
-                        <SelectItem value='4:5'>5:4</SelectItem>
-                        <SelectItem value='4:5'>4:3</SelectItem>
-                        <SelectItem value='4:5'>3:4</SelectItem>
-                        <SelectItem value='4:5'>2:3</SelectItem>
+                        <SelectItem value='5:4'>5:4</SelectItem>
+                        <SelectItem value='4:3'>4:3</SelectItem>
+                        <SelectItem value='3:4'>3:4</SelectItem>
+                        <SelectItem value='2:3'>2:3</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
