@@ -5,6 +5,7 @@ import Replicate from 'replicate';
 
 const replicate = new Replicate({
   auth: process.env.REPLICATE_API_TOKEN,
+  useFileOutput: false,
 });
 
 interface ImageResponse {
@@ -13,7 +14,7 @@ interface ImageResponse {
   data: any | null;
 }
 
-export async function generateImage(
+export async function generateImageAction(
   input: z.infer<typeof ImageGenerationFormSchema>
 ): Promise<ImageResponse> {
   const modelInput = {
@@ -33,6 +34,7 @@ export async function generateImage(
     const output = await replicate.run(input.model as `${string}/${string}`, {
       input: modelInput,
     });
+    console.log('Output: ', output);
     return {
       error: null,
       success: true,
