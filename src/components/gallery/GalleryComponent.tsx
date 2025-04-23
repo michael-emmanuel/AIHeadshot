@@ -1,5 +1,5 @@
 'use client';
-import ImageDialog from '@/app/(dashboard)/gallery/ImageDialog';
+import ImageDialog from '@/components/gallery/ImageDialog';
 import { Tables } from '@datatypes.types';
 import Image from 'next/image';
 import React, { useState } from 'react';

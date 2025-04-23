@@ -9,9 +9,10 @@ import {
 import Image from 'next/image';
 import { Tables } from '@datatypes.types';
 import { Button } from '@/components/ui/button';
-import { DownloadIcon, Trash2Icon, TrashIcon } from 'lucide-react';
+import { DownloadIcon } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import DeleteImage from './DeleteImage';
 
 interface ImageDialogProps {
   image: { url: string | undefined } & Tables<'generated_images'>;
@@ -60,9 +61,12 @@ const ImageDialog = ({ image, onClose }: ImageDialogProps) => {
                   <DownloadIcon className='w-4 h-4 mr-2' />
                   Download
                 </Button>
-                <Button className='w-fit' variant={'destructive'}>
-                  <Trash2Icon className='w-4 h-4'></Trash2Icon>
-                </Button>
+                <DeleteImage
+                  imageId={image.id.toString()}
+                  onDelete={onClose}
+                  className='w-fit'
+                  imageName={image.image_name}
+                />
               </div>
             </div>
             <hr className='inline-block w-full border-primary/30 mb-2' />
