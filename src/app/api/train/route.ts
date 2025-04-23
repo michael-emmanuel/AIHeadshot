@@ -1,6 +1,12 @@
+import { create } from 'zustand';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import Replicate from 'replicate';
+
+const replicate = new Replicate({
+  auth: process.env.REPLICATE_API_TOKEN,
+});
 
 export async function POST(request: NextRequest) {
   try {
@@ -46,7 +52,40 @@ export async function POST(request: NextRequest) {
       throw new Error('Failed to get the file URL');
     }
 
-    console.log(fileUrl);
+    // View available hardware ------------------------
+    // const hardware = await replicate.hardware.list();
+    // console.log(hardware);
+
+    const modelId = `${user.id}-${Date.now()}-${input.modelName
+      .toLowerCase()
+      .replaceAll(' ', '-')}`;
+
+    // create model first - create our model using custom id above
+    await replicate.models.create('michael-emmanuel', modelId, {
+      visibility: 'private',
+      hardware: 'gpu-a100-large',
+    });
+
+    // start training cppasta from docs
+    // Note training takes 20-30 minutes, until then you will not be able to send other requests
+    // so it wont be able to send any response (Perhaps using a webhook is a valid workaround?)
+    const training = await replicate.trainings.create(
+      'ostris',
+      'flux-dev-lora-trainer',
+      'c6e78d2501e8088876e99ef21e4460d0dc121af7a4b786b9a4c2d75c620e300d',
+      {
+        // You need to create a model on Replicate that will be the destination for the trained version.
+        destination: `michael-emmanuel/${modelId}`,
+        input: {
+          steps: 1200,
+          resolution: '1024',
+          input_images: fileUrl.signedUrl,
+          trigger_word: 'ohwx',
+        },
+      }
+    );
+
+    console.log(training);
 
     return NextResponse.json(
       {
