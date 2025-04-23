@@ -150,3 +150,63 @@ export async function storeImages(data: storeImageInput[]) {
     data: { results: uploadResults },
   };
 }
+
+export async function getImages(limit?: number) {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  // check if user authorized
+  if (!user) {
+    return {
+      error: 'Unauthorized',
+      success: false,
+      data: null,
+    };
+  }
+
+  let query = supabase
+    .from('generated_images')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false });
+
+  if (limit) {
+    query = query.limit(limit);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    return {
+      error: error.message || 'Failed to fetch images',
+      success: false,
+      data: null,
+    };
+  }
+  // generates the url to show the images, since the blobs are stored privately, we generate temp signed URLs that last for 1 hr
+  const imagesWithUrls = await Promise.all(
+    data.map(
+      async (
+        image: Database['public']['Tables']['generated_images']['Row']
+      ) => {
+        const { data } = await supabase.storage
+          .from('generated-images')
+          .createSignedUrl(`${user.id}/${image.image_name}`, 3600);
+
+        return {
+          ...image,
+          url: data?.signedUrl,
+        };
+      }
+    )
+  );
+
+  return {
+    error: null,
+    success: true,
+    data: imagesWithUrls || null,
+  };
+}
