@@ -1,4 +1,3 @@
-import { create } from 'zustand';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
@@ -7,6 +6,12 @@ import Replicate from 'replicate';
 const replicate = new Replicate({
   auth: process.env.REPLICATE_API_TOKEN,
 });
+
+// provide SITE_URL when hosting app
+// npx ngrok http http://localhost:3000
+const WEBHOOK_URL =
+  process.env.SITE_URL ??
+  'https://6c6c-2600-1700-4cb0-2ed0-75ce-fe1b-2d2d-49da.ngrok-free.app'; // only works for local
 
 export async function POST(request: NextRequest) {
   try {
@@ -82,6 +87,8 @@ export async function POST(request: NextRequest) {
           input_images: fileUrl.signedUrl,
           trigger_word: 'ohwx',
         },
+        webhook: `${WEBHOOK_URL}/api/webhooks/training`,
+        webhook_events_filter: ['completed'], // optional
       }
     );
 
