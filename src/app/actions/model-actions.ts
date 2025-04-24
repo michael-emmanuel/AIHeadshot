@@ -20,3 +20,90 @@ export async function getPresignedStorageUrl(filePath: string) {
     error: error?.message || null,
   };
 }
+
+export async function fetchModels() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const { data, error, count } = await supabase
+    .from('models')
+    .select('*', { count: 'exact' })
+    .eq('user_id', user?.id)
+    .order('created_at', { ascending: false });
+
+  return {
+    error: error?.message || null,
+    success: !error,
+    data: data || null,
+    count: count || 0,
+  };
+}
+
+// TODO: find replicate.deleteModel function and use instead of http req
+export async function deleteModel(
+  id: number,
+  model_id: string,
+  model_version: string
+) {
+  const supabase = await createClient();
+
+  // We must first delete the model version before we can delete the model id
+  if (model_version) {
+    try {
+      const res = await fetch(
+        `https://api.replicate.com/v1/models/michael-emmanuel/${model_id}/versions/${model_version}`,
+        {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${process.env.REPLICATE_API_TOKEN}`,
+          },
+        }
+      );
+      if (!res.ok) {
+        throw new Error('Failed to delete model version from Replicate');
+      }
+    } catch (e) {
+      console.error('Failed to delete model version from replicate: ', e);
+
+      return {
+        error: 'Failed to delete model version from replicate',
+        success: false,
+      };
+    }
+  }
+
+  // delete model id
+  if (model_id) {
+    try {
+      const res = await fetch(
+        `https://api.replicate.com/v1/models/michael-emmanuel/${model_id}`,
+        {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${process.env.REPLICATE_API_TOKEN}`,
+          },
+        }
+      );
+      if (!res.ok) {
+        throw new Error('Failed to delete model from Replicate');
+      }
+    } catch (e) {
+      console.error('Failed to delete model from replicate: ', e);
+
+      return {
+        error: 'Failed to delete model from replicate',
+        success: false,
+      };
+    }
+  }
+
+  // delete model from supabase
+  const { error } = await supabase.from('models').delete().eq('id', id);
+
+  return {
+    error: error?.message || 'Failed to delete model from database',
+    success: !error, // if null sets success to true
+  };
+}

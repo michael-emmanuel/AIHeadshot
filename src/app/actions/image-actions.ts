@@ -40,7 +40,6 @@ export async function generateImageAction(
     const output = await replicate.run(input.model as `${string}/${string}`, {
       input: modelInput,
     });
-    console.log('Output: ', output);
     return {
       error: null,
       success: true,
@@ -143,7 +142,7 @@ export async function storeImages(data: storeImageInput[]) {
       });
     }
   }
-  console.log('UploadResults: ', uploadResults);
+
   return {
     error: null,
     success: true,

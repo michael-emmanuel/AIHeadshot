@@ -11,14 +11,14 @@ const replicate = new Replicate({
 // npx ngrok http http://localhost:3000
 const WEBHOOK_URL =
   process.env.SITE_URL ??
-  'https://6c6c-2600-1700-4cb0-2ed0-75ce-fe1b-2d2d-49da.ngrok-free.app'; // only works for local
+  'https://fa36-2600-1700-4cb0-2ed0-75ce-fe1b-2d2d-49da.ngrok-free.app'; // only works for local
 
 export async function POST(request: NextRequest) {
   try {
     if (!process.env.REPLICATE_API_TOKEN) {
       throw new Error('The replicate api token is not set!');
     }
-
+    // Preform Error handling
     // Protect route
     const supabase = await createClient();
     const {
@@ -48,7 +48,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Grab the URL of our uploaded file, create a signed url
     const fileName = input.fileKey.replace('training-data/', '');
+
     const { data: fileUrl } = await supabaseAdmin.storage
       .from('training-data')
       .createSignedUrl(fileName, 3600); // create signedUrl that expires in 1hr
@@ -87,12 +89,28 @@ export async function POST(request: NextRequest) {
           input_images: fileUrl.signedUrl,
           trigger_word: 'ohwx',
         },
-        webhook: `${WEBHOOK_URL}/api/webhooks/training`,
+        webhook: `${WEBHOOK_URL}/api/webhooks/training?userId=${
+          user.id
+        }&modelName=${encodeURIComponent(
+          input.modelName
+        )}&fileName=${encodeURIComponent(fileName)}`,
         webhook_events_filter: ['completed'], // optional
       }
     );
 
-    console.log(training);
+    // add model values in the supabase - using supabaseAdmin bc user does not have right to insert into models
+    await supabaseAdmin.from('models').insert({
+      model_id: modelId,
+      user_id: user.id,
+      model_name: input.modelName,
+      gender: input.gender,
+      training_status: training.status,
+      trigger_word: 'ohwx',
+      training_steps: 1200,
+      training_id: training.id,
+    });
+
+    console.log('training', training);
 
     return NextResponse.json(
       {

@@ -55,6 +55,8 @@ function ModelTrainingForm() {
 
   const fileRef = form.register('zipFile');
 
+  // Obtain model name, gender & zip file
+  // get preSignedUrl to allow us to upload file from the client side
   async function onSubmit(values: z.infer<typeof formSchema>) {
     toast.loading('Uploading file...', { id: toastId });
     try {
@@ -86,12 +88,16 @@ function ModelTrainingForm() {
         id: toastId,
       });
 
-      console.log(res);
-
+      // once file is uploaded, we send fileName as fileKey
+      // along with modelName & gender to /api/train
       const formData = new FormData();
       formData.append('fileKey', res.Key);
       formData.append('modelName', values.modelName);
       formData.append('gender', values.gender);
+
+      toast.loading('Initiating modeling training...', {
+        id: toastId,
+      });
 
       // use the /train handler
       const response = await fetch('/api/train', {
