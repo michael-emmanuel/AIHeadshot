@@ -141,6 +141,9 @@
 
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
+  .theme {
+    --animate-gradient: gradient 8s linear infinite;
+  }
 }
 
 @layer base {
@@ -149,5 +152,13 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@theme inline {
+  @keyframes gradient {
+  to {
+    background-position: var(--bg-size, 300%) 0;
+    }
   }
 }
