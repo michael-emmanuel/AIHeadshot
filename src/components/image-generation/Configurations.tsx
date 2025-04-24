@@ -31,6 +31,7 @@ import {
 import { InfoIcon } from 'lucide-react';
 import { generateImageAction } from '@/app/actions/image-actions';
 import useGeneratedStore from '@/store/useGeneratedStore';
+import { Tables } from '@datatypes.types';
 
 export const ImageGenerationFormSchema = z.object({
   model: z.string({
@@ -74,13 +75,20 @@ export const ImageGenerationFormSchema = z.object({
     }),
 });
 
-const Configurations = () => {
+interface ConfigurationsProps {
+  userModels: Tables<'models'>[];
+  model_id?: string;
+}
+
+const Configurations = ({ userModels, model_id }: ConfigurationsProps) => {
   const generateImage = useGeneratedStore(state => state.generateImage);
 
   const form = useForm<z.infer<typeof ImageGenerationFormSchema>>({
     resolver: zodResolver(ImageGenerationFormSchema),
     defaultValues: {
-      model: 'black-forest-labs/flux-dev',
+      model: model_id
+        ? `michael-emmanuel/${model_id}`
+        : 'black-forest-labs/flux-dev',
       prompt: '',
       guidance: 8.5,
       num_outputs: 1,
@@ -114,7 +122,22 @@ const Configurations = () => {
   async function onSubmit(values: z.infer<typeof ImageGenerationFormSchema>) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
-    await generateImage(values);
+    const newValues = {
+      ...values,
+      prompt: values.model.startsWith('michael-emmanuel/')
+        ? (() => {
+            const modelId = values.model
+              .replace('michael-emmanuel/', '')
+              .split(':')[0];
+            const selectedModel = userModels.find(
+              model => model.model_id === modelId
+            );
+
+            return `photo of a ${selectedModel?.trigger_word || 'ohwx'} ${selectedModel?.gender}, ${values.prompt}`;
+          })()
+        : values.prompt,
+    };
+    await generateImage(newValues);
   }
 
   return (
@@ -155,6 +178,17 @@ const Configurations = () => {
                       <SelectItem value='black-forest-labs/flux-schnell'>
                         Flux Schnell
                       </SelectItem>
+                      {userModels?.map(
+                        model =>
+                          model.training_status === 'succeeded' && (
+                            <SelectItem
+                              key={model.id}
+                              value={`michael-emmanuel/${model.model_id}:${model.version}`}
+                            >
+                              {model.model_name}
+                            </SelectItem>
+                          )
+                      )}
                     </SelectContent>
                   </Select>
                   <FormMessage />
