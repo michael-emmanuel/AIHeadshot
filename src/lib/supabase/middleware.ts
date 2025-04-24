@@ -43,7 +43,8 @@ export async function updateSession(request: NextRequest) {
     !user &&
     !request.nextUrl.pathname.startsWith('/login') &&
     !request.nextUrl.pathname.startsWith('/auth') &&
-    !request.nextUrl.pathname.startsWith('/api/webhooks/training')
+    !request.nextUrl.pathname.startsWith('/api/webhooks/training') &&
+    !request.nextUrl.pathname.startsWith('/api/webhooks/stripe')
     // Add future public routes otherwise they will be treated as private routes
   ) {
     // no user, potentially respond by redirecting the user to the login page

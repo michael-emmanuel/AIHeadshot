@@ -11,7 +11,7 @@ const replicate = new Replicate({
 // npx ngrok http http://localhost:3000
 const WEBHOOK_URL =
   process.env.SITE_URL ??
-  'https://8f16-2600-1700-4cb0-2ed0-e4ee-2db4-4eb2-1937.ngrok-free.app'; // only works for local
+  'https://47fc-2600-1700-4cb0-2ed0-e4ee-2db4-4eb2-1937.ngrok-free.app'; // only works for local
 
 export async function POST(request: NextRequest) {
   try {
