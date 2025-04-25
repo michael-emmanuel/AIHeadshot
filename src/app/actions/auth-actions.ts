@@ -39,9 +39,8 @@ export async function login(formdata: FormData): Promise<AuthResponse> {
     password: formdata.get('password') as string,
   };
 
-  const { data: signinData, error } = await supabase.auth.signInWithPassword(
-    data
-  );
+  const { data: signinData, error } =
+    await supabase.auth.signInWithPassword(data);
 
   return {
     error: error?.message || 'There was an error logging in',
@@ -55,4 +54,52 @@ export async function logout(): Promise<void> {
 
   await supabase.auth.signOut();
   redirect('/login');
+}
+
+export async function updateProfile(values: {
+  fullName: string;
+}): Promise<AuthResponse> {
+  const supabase = await createClient();
+  const full_name = values.fullName;
+  const { data: profileDate, error } = await supabase.auth.updateUser({
+    data: { full_name },
+  });
+
+  return {
+    error: error?.message || 'There was an error updating the profile',
+    success: !error,
+    data: profileDate || null,
+  };
+}
+
+export async function resetPassword(values: {
+  email: string;
+}): Promise<AuthResponse> {
+  const supabase = await createClient();
+
+  const { data: resetPasswordData, error } =
+    await supabase.auth.resetPasswordForEmail(values.email);
+
+  return {
+    error:
+      error?.message || 'There was an error sending the reset password email',
+    success: !error,
+    data: resetPasswordData || null,
+  };
+}
+
+export async function changePassword(
+  newPassword: string
+): Promise<AuthResponse> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase.auth.updateUser({
+    password: newPassword,
+  });
+
+  return {
+    error: error?.message || 'There was an error changing the password',
+    success: !error,
+    data: data || null,
+  };
 }
