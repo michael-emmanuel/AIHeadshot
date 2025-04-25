@@ -10,8 +10,25 @@ const replicate = new Replicate({
 // provide SITE_URL when hosting app
 // npx ngrok http http://localhost:3000
 const WEBHOOK_URL =
-  process.env.SITE_URL ??
-  'https://4228-2600-1700-4cb0-2ed0-e4ee-2db4-4eb2-1937.ngrok-free.app'; // only works for local
+  process.env.SITE_URL ?? 'https://2msk6drr-3000.use.devtunnels.ms'; // only works for local
+
+async function validateUserCredits(userId: string) {
+  const { data: userCredits, error } = await supabaseAdmin
+    .from('credits')
+    .select('*')
+    .eq('user_id', userId)
+    .single();
+
+  if (error) {
+    throw new Error('Error getting user credits!');
+  }
+
+  const credits = userCredits?.model_training_count ?? 0;
+  if (credits <= 0) {
+    throw new Error('No credits left for training');
+  }
+  return credits;
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -47,6 +64,8 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    const oldCredits = await validateUserCredits(user?.id);
 
     // Grab the URL of our uploaded file, create a signed url
     const fileName = input.fileKey.replace('training-data/', '');
@@ -110,7 +129,13 @@ export async function POST(request: NextRequest) {
       training_id: training.id,
     });
 
-    console.log('training', training);
+    // update credits
+    await supabaseAdmin
+      .from('credits')
+      .update({ model_training_count: oldCredits - 1 })
+      .eq('user_id', user?.id);
+
+    // console.log('training', training);
 
     return NextResponse.json(
       {

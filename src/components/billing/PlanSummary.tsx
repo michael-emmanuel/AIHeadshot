@@ -4,8 +4,8 @@ import React from 'react';
 import { Card, CardContent, CardFooter } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Progress } from '../ui/progress';
-import { Button } from '../ui/button';
 import PricingSheet from './PricingSheet';
+import { format } from 'date-fns';
 
 type Product = Tables<'products'>;
 type Price = Tables<'prices'>;
@@ -26,10 +26,16 @@ interface PlanSummaryProps {
   subscription: SubscriptionWithProduct | null;
   user: User | null;
   products: ProductWithPrices[] | null;
+  credits: Tables<'credits'> | null;
 }
 
-const PlanSummary = ({ subscription, user, products }: PlanSummaryProps) => {
-  if (!subscription || subscription.status !== 'active') {
+const PlanSummary = ({
+  credits,
+  subscription,
+  user,
+  products,
+}: PlanSummaryProps) => {
+  if (!credits || !subscription || subscription.status !== 'active') {
     return (
       <Card className='max-w-5xl'>
         <CardContent className='px-5 py-4'>
@@ -80,8 +86,98 @@ const PlanSummary = ({ subscription, user, products }: PlanSummaryProps) => {
       </Card>
     );
   }
+  console.log(subscription);
 
-  return <div>PlanSummary</div>;
+  const {
+    products: subscriptionProduct,
+    unit_amount,
+    currency,
+  } = subscription?.prices ?? {};
+  const priceString = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: currency!,
+    minimumFractionDigits: 0,
+  }).format((unit_amount || 0) / 100);
+
+  console.log('max gen', credits.max_image_generation_count);
+
+  const imageGenCount = credits.image_generation_count ?? 0;
+  const modelTrainCount = credits.model_training_count ?? 0;
+  const maxImageGenCount = credits.max_image_generation_count ?? 0;
+  const maxModelTrainCount = credits.max_model_training_count ?? 0;
+
+  return (
+    <Card className='max-w-5xl'>
+      <CardContent className='px-5 py-4 pb-8'>
+        <h3 className='pb-4 text-base font-semibold flex flex-wrap items-center gap-x-2'>
+          <span>Plan Summary</span>
+          <Badge variant={'secondary'} className='bg-primary/10'>
+            {subscriptionProduct?.name} Plan
+          </Badge>
+        </h3>
+        <div className='grid grid-cols-8 gap-4'>
+          <div className='col-span-5 flex flex-col pr-12'>
+            <div className='flex-1 text-sm font-normal flex w-full justify-between items-center'>
+              <span className='font-semibold text-base'>
+                {imageGenCount}/{maxImageGenCount}
+              </span>
+              <span className='font-normal text-muted-foreground ml-1 lowercase'>
+                Image generation credits
+              </span>
+            </div>
+            <div className='mb-1 flex items-end'>
+              <Progress
+                value={(imageGenCount / maxImageGenCount) * 100}
+                className='w-full h-2'
+              />
+            </div>
+          </div>
+
+          <div className='col-span-5 flex flex-col pr-12'>
+            <div className='flex-1 text-sm font-normal flex w-full justify-between items-center'>
+              <span className='font-semibold text-base'>
+                {modelTrainCount}/{maxModelTrainCount}
+              </span>
+              <span className='font-normal text-muted-foreground ml-1 lowercase'>
+                Model Training credits left
+              </span>
+            </div>
+            <div className='mb-1 flex items-end'>
+              <Progress
+                value={(modelTrainCount / maxModelTrainCount) * 100}
+                className='w-full h-2'
+              />
+            </div>
+          </div>
+          <div className='col-span-3 flex flex-row justify-between flex-wrap'>
+            <div className='flex flex-col pb-0'>
+              <div className='text-sm font-normal'>Price/Month</div>
+              <div className='flex-1 pt-1 text-sm font-medium'>
+                {priceString}
+              </div>
+            </div>
+
+            <div className='flex flex-col pb-0'>
+              <div className='text-sm font-normal'>Included Credit</div>
+              <div className='flex-1 pt-1 text-sm font-medium'>
+                {maxImageGenCount}
+              </div>
+            </div>
+
+            <div className='flex flex-col pb-0'>
+              <div className='text-sm font-normal'>Renewal Date</div>
+              <div className='flex-1 pt-1 text-sm font-medium'>
+                {format(
+                  new Date(subscription.current_period_end),
+                  'MMM d, yyyy'
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
 };
 
 export default PlanSummary;

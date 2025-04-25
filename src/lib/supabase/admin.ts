@@ -2,7 +2,7 @@ import { toDateTime } from '@/lib/helpers';
 import { stripe } from '@/lib/stripe/config';
 import { createClient } from '@supabase/supabase-js';
 import Stripe from 'stripe';
-import type { Tables, TablesInsert } from '@datatypes.types';
+import type { Json, Tables, TablesInsert } from '@datatypes.types';
 
 export const supabaseAdmin = createClient(
   process.env.SUPABASE_URL || '',
@@ -48,6 +48,7 @@ const upsertPriceRecord = async (
     interval: price.recurring?.interval ?? null,
     interval_count: price.recurring?.interval_count ?? null,
     trial_period_days: price.recurring?.trial_period_days ?? TRIAL_PERIOD_DAYS,
+    metadata: price.metadata ?? null,
   };
 
   const { error: upsertError } = await supabaseAdmin
@@ -230,6 +231,9 @@ const manageSubscriptionStatusChange = async (
   const subscription = await stripe.subscriptions.retrieve(subscriptionId, {
     expand: ['default_payment_method'],
   });
+
+  //console.log('This is the subscription', subscription);
+
   // Upsert the latest status of the subscription object.
   const subscriptionData: TablesInsert<'subscriptions'> = {
     id: subscription.id,
@@ -247,11 +251,9 @@ const manageSubscriptionStatusChange = async (
     canceled_at: subscription.canceled_at
       ? toDateTime(subscription.canceled_at).toISOString()
       : null,
-    current_period_start: toDateTime(
-      subscription.current_period_start
-    ).toISOString(),
+    current_period_start: toDateTime(subscription.created).toISOString(),
     current_period_end: toDateTime(
-      subscription.current_period_end
+      subscription.created + 2678400
     ).toISOString(),
     created: toDateTime(subscription.created).toISOString(),
     ended_at: subscription.ended_at
@@ -286,6 +288,33 @@ const manageSubscriptionStatusChange = async (
     );
 };
 
+const updateUserCredits = async (userId: string, metadata: Json) => {
+  const creditsData: TablesInsert<'credits'> = {
+    user_id: userId,
+    image_generation_count:
+      (metadata as { image_generation_count?: number })
+        .image_generation_count ?? 0,
+    model_training_count:
+      (metadata as { model_training_count?: number }).model_training_count ?? 0,
+    max_image_generation_count:
+      (metadata as { image_generation_count?: number })
+        .image_generation_count ?? 0,
+    max_model_training_count:
+      (metadata as { model_training_count?: number }).model_training_count ?? 0,
+  };
+
+  const { error: upsertError } = await supabaseAdmin
+    .from('credits')
+    .upsert(creditsData)
+    .eq('user_id', userId);
+
+  if (upsertError) {
+    throw new Error(`Credits update failed: ${upsertError.message}`);
+  }
+
+  console.log('Updated credits for the user', userId);
+};
+
 export {
   upsertProductRecord,
   upsertPriceRecord,
@@ -293,4 +322,5 @@ export {
   deletePriceRecord,
   createOrRetrieveCustomer,
   manageSubscriptionStatusChange,
+  updateUserCredits,
 };

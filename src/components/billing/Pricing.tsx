@@ -9,9 +9,10 @@ import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { User } from '@supabase/supabase-js';
 import { usePathname, useRouter } from 'next/navigation';
-import { checkoutWithStripe } from '@/lib/stripe/server';
+import { checkoutWithStripe, createStripePortal } from '@/lib/stripe/server';
 import { getErrorRedirect } from '@/lib/helpers';
 import { getStripe } from '@/lib/stripe/client';
+import { toast } from 'sonner';
 
 type Product = Tables<'products'>;
 type Price = Tables<'prices'>;
@@ -32,7 +33,10 @@ interface PricingProps {
   subscription: SubscriptionWithProduct | null;
   user: User | null;
   products: ProductWithPrices[] | null;
-  mostPopularProduct: string;
+  mostPopularProduct?: string;
+  showInterval?: boolean;
+  className?: string;
+  activeProduct?: string;
 }
 
 const renderPricingButton = ({
@@ -49,9 +53,40 @@ const renderPricingButton = ({
   product: ProductWithPrices;
   price: Price;
   mostPopularProduct: string;
-  handleStripeCheckout: () => Promise<void>;
+  handleStripeCheckout: (price: Price) => Promise<void>;
   handleStripePortalRequest: () => Promise<void>;
 }) => {
+  // case 1: user has active sub for this product
+  if (
+    user &&
+    subscription &&
+    subscription.prices?.products?.name?.toLowerCase() ===
+      product.name?.toLowerCase()
+  ) {
+    return (
+      <Button
+        className='mt-8 w-full font-semibold'
+        onClick={handleStripePortalRequest}
+      >
+        Manage Subscription
+      </Button>
+    );
+  }
+
+  // case 2: user is logged in and has an active subscription for a different product
+  if (user && subscription) {
+    return (
+      <Button
+        className='mt-8 w-full font-semibold'
+        onClick={handleStripePortalRequest}
+        variant={'secondary'}
+      >
+        Switch Plan
+      </Button>
+    );
+  }
+
+  // case 3: logged in user with no subscription plan or diff subs
   if (user && !subscription) {
     return (
       <Button
@@ -68,14 +103,31 @@ const renderPricingButton = ({
     );
   }
 
+  return (
+    <Button
+      className='mt-8 w-full font-semibold'
+      onClick={() => handleStripeCheckout(price)}
+      variant={
+        product.name?.toLowerCase() === mostPopularProduct.toLowerCase()
+          ? 'default'
+          : 'secondary'
+      }
+    >
+      Subscribe
+    </Button>
+  );
+
   return null;
 };
 
 export const Pricing = ({
   user,
   products,
-  mostPopularProduct = 'pro',
+  mostPopularProduct = '',
   subscription,
+  showInterval = true,
+  className,
+  activeProduct = '',
 }: PricingProps) => {
   const [billingInterval, setBillingInterval] = useState('month');
   const router = useRouter();
@@ -113,28 +165,38 @@ export const Pricing = ({
   };
 
   const handleStripePortalRequest = async () => {
-    return 'stripe checkout fuctioni';
+    toast.info('Redirecting to stripe portal...');
+    const redirectUrl = await createStripePortal(currentPath);
+    return router.push(redirectUrl);
   };
 
   return (
-    <section className='max-w-7xl mx-auto py-16 px-8 w-full flex flex-col'>
-      <div className='flex justify-center items-center space-x-4 py-8'>
-        <Label htmlFor='pricing-switch' className='font-semibold text-base'>
-          Monthly
-        </Label>
-        <Switch
-          checked={billingInterval === 'year'}
-          id='pricing-switch'
-          onCheckedChange={checked =>
-            setBillingInterval(checked ? 'year' : 'month')
-          }
-        />
-        <Label htmlFor='pricing-switch' className='font-semibold text-base'>
-          Yearly
-        </Label>
-      </div>
-      <div className='grid grid-cols-3 place-items-center mx-auto gap-8 space-y-4'>
-        {products.map(product => {
+    <section
+      className={cn(
+        'max-w-7xl mx-auto py-16 px-8 w-full flex flex-col',
+        className
+      )}
+    >
+      {showInterval && (
+        <div className='flex justify-center items-center space-x-4 py-8'>
+          <Label htmlFor='pricing-switch' className='font-semibold text-base'>
+            Monthly
+          </Label>
+          <Switch
+            checked={billingInterval === 'year'}
+            id='pricing-switch'
+            onCheckedChange={checked =>
+              setBillingInterval(checked ? 'year' : 'month')
+            }
+          />
+          <Label htmlFor='pricing-switch' className='font-semibold text-base'>
+            Yearly
+          </Label>
+        </div>
+      )}
+
+      <div className='grid grid-cols-3 place-items-center mx-auto gap-8 space-y-0'>
+        {products?.map(product => {
           const price = product?.prices?.find(
             price => price.interval === billingInterval
           );
@@ -150,14 +212,20 @@ export const Pricing = ({
               key={product.id}
               className={cn(
                 'border bg-background rounded-xl shadow-sm h-fit divide-y divide-border border-border',
-                product.name?.toLowerCase() === mostPopularProduct.toLowerCase()
-                  ? 'border-primary bg-background drop-shadow-md scale-105'
+                product.name?.toLowerCase() === activeProduct.toLowerCase()
+                  ? 'border-primary bg-background drop-shadow-md'
                   : 'border-border'
               )}
             >
               <div className='p-6'>
                 <h2 className='text-2xl leading-6 font-semibold text-foreground flex items-center justify-between'>
                   {product.name}
+                  {product.name?.toLowerCase() ===
+                  activeProduct.toLowerCase() ? (
+                    <Badge className='border-border font-semibold'>
+                      Selected
+                    </Badge>
+                  ) : null}
                   {product.name?.toLowerCase() ===
                   mostPopularProduct.toLowerCase() ? (
                     <Badge className='border-border font-semibold'>
