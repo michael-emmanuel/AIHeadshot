@@ -4,11 +4,15 @@ let stripePromise: Promise<Stripe | null>;
 
 export const getStripe = () => {
   if (!stripePromise) {
-    stripePromise = loadStripe(
-      process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY_LIVE ??
-        process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ??
-        ''
-    );
+    if (!process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY_LIVE) {
+      stripePromise = loadStripe(
+        process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
+      );
+    } else {
+      stripePromise = loadStripe(
+        process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY_LIVE
+      );
+    }
   }
 
   return stripePromise;

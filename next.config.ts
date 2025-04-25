@@ -22,7 +22,7 @@ const nextConfig: NextConfig = {
   },
   experimental: {
     allowedDevOrigins: [
-      'https://47fc-2600-1700-4cb0-2ed0-e4ee-2db4-4eb2-1937.ngrok-free.app',
+      'https://4228-2600-1700-4cb0-2ed0-e4ee-2db4-4eb2-1937.ngrok-free.app',
     ],
   },
 };

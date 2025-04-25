@@ -6,8 +6,8 @@ import SignupForm from './SignupForm';
 import Link from 'next/link';
 import ResetPassword from './ResetPassword';
 
-const AuthForm = () => {
-  const [mode, setMode] = useState('login');
+const AuthForm = ({ state }: { state: string }) => {
+  const [mode, setMode] = useState(state);
 
   return (
     <div className='space-y-6'>
@@ -16,15 +16,15 @@ const AuthForm = () => {
           {mode === 'reset'
             ? 'Reset Password'
             : mode === 'login'
-            ? 'Login'
-            : 'Sign Up'}
+              ? 'Login'
+              : 'Sign Up'}
         </h1>
         <p className='text-sm text-muted-foreground'>
           {mode === 'reset'
             ? 'Enter your email below to reset your password'
             : mode === 'login'
-            ? 'Enter your email below to login to your account'
-            : 'Enter your information below to create an account'}
+              ? 'Enter your email below to login to your account'
+              : 'Enter your information below to create an account'}
         </p>
       </div>
       {mode === 'login' && (
