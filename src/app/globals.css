@@ -8,6 +8,14 @@
   }
 }
 
+.subHeading {
+  @apply text-2xl xs:text-3xl sm:text-4xl font-bold;
+}
+
+.subText {
+  @apply text-sm xs:text-base text-muted-foreground lg:max-w-3xl;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -159,24 +167,24 @@
 
 @theme inline {
   @keyframes gradient {
-  to {
-    background-position: var(--bg-size, 300%) 0;
+    to {
+      background-position: var(--bg-size, 300%) 0;
     }
   }
   @keyframes marquee {
-  from {
-    transform: translateX(0);
+    from {
+      transform: translateX(0);
     }
-  to {
-    transform: translateX(calc(-100% - var(--gap)));
+    to {
+      transform: translateX(calc(-100% - var(--gap)));
     }
   }
   @keyframes marquee-vertical {
-  from {
-    transform: translateY(0);
+    from {
+      transform: translateY(0);
     }
-  to {
-    transform: translateY(calc(-100% - var(--gap)));
+    to {
+      transform: translateY(calc(-100% - var(--gap)));
     }
   }
 }
