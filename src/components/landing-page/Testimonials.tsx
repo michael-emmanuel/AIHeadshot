@@ -95,7 +95,7 @@ const Testimonials = () => {
   return (
     <section
       id='testimonials'
-      className='w-full py-12 flex flex-col items-center justify-center overflow-hidden'
+      className='w-full px-6 xs:px-8 sm:px-0 sm:mx-8 lg:mx-auto py-32 flex flex-col items-center justify-center overflow-hidden'
     >
       <AnimatedGradientText className='bg-background backdrop-blur-0'>
         <span

@@ -31,7 +31,7 @@ export const Pricing = ({
   console.log(products);
   return (
     <section className='w-full bg-muted flex flex-col items-center justify-center'>
-      <div className='w-full container mx-auto py-32 flex flex-col items-center justify-center space-x-8'>
+      <div className='w-full container px-6 xs:px-8 sm:px-0 sm:mx-8 lg:mx-auto py-32 flex flex-col items-center justify-center space-x-8'>
         <div className='group relative mx-auto flex items-center justify-center rounded-full px-4 py-1.5 shadow-[inset_0_-8px_10px_#8fdfff1f] transition-shadow duration-500 ease-out hover:shadow-[inset_0_-5px_10px_#8fdfff3f] '>
           <span
             className={cn(
@@ -73,7 +73,7 @@ export const Pricing = ({
             Yearly
           </Label>
         </div>
-        <div className='grid grid-cols-3 place-items-center mx-auto gap-8'>
+        <div className='grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 place-items-center mx-auto gap-y-8 sm:gap-8 lg:max-w-4xl xl:max-w-none'>
           {products.map(product => {
             const price = product?.prices?.find(
               price => price.interval === billingInterval
