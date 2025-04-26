@@ -115,14 +115,14 @@ const PlanSummary = ({
             {subscriptionProduct?.name} Plan
           </Badge>
         </h3>
-        <div className='grid grid-cols-8 gap-4'>
-          <div className='col-span-5 flex flex-col pr-12'>
+        <div className='grid grid-cols-3 xl:grid-cols-8 gap-4'>
+          <div className='col-span-full xl:col-span-5 flex flex-col xl:pr-12'>
             <div className='flex-1 text-sm font-normal flex w-full justify-between items-center'>
               <span className='font-semibold text-base'>
                 {imageGenCount}/{maxImageGenCount}
               </span>
               <span className='font-normal text-muted-foreground ml-1 lowercase'>
-                Image generation credits
+                image generation credits
               </span>
             </div>
             <div className='mb-1 flex items-end'>
@@ -133,7 +133,7 @@ const PlanSummary = ({
             </div>
           </div>
 
-          <div className='col-span-5 flex flex-col pr-12'>
+          <div className='col-span-full xl:col-span-5 flex flex-col xl:pr-12'>
             <div className='flex-1 text-sm font-normal flex w-full justify-between items-center'>
               <span className='font-semibold text-base'>
                 {modelTrainCount}/{maxModelTrainCount}
@@ -149,7 +149,7 @@ const PlanSummary = ({
               />
             </div>
           </div>
-          <div className='col-span-3 flex flex-row justify-between flex-wrap'>
+          <div className='col-span-full xl:col-span-3 flex flex-row justify-between flex-wrap'>
             <div className='flex flex-col pb-0'>
               <div className='text-sm font-normal'>Price/Month</div>
               <div className='flex-1 pt-1 text-sm font-medium'>

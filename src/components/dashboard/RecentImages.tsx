@@ -35,7 +35,7 @@ const RecentImages = ({ images }: RecentImagesProps) => {
   }
 
   return (
-    <Card className='col-span-3'>
+    <Card className='col-span-full xl:col-span-3'>
       <CardHeader>
         <CardTitle>Recent Generations</CardTitle>
       </CardHeader>
@@ -45,7 +45,7 @@ const RecentImages = ({ images }: RecentImagesProps) => {
             {images.map(image => (
               <CarouselItem
                 key={image.id}
-                className='md:basis-1/2 lg:basis-1/3'
+                className='basis-full md:basis-1/2 lg:basis-1/3'
               >
                 <div className='space-y-2'>
                   <div
