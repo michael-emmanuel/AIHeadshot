@@ -143,7 +143,7 @@ const ImageDialog = ({ image, onClose }: ImageDialogProps) => {
                 className='rounded-full border border-primary/30 px-4 py-2 text-sm font-normal'
               >
                 <span className='text-primary uppercase mr-2 font-semibold'>
-                  Created At:
+                  Created at:
                 </span>
                 {new Date(image.created_at).toLocaleDateString()}
               </Badge>
