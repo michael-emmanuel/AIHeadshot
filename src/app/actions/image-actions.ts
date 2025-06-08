@@ -92,7 +92,7 @@ export async function imgUrlToBlob(url: string) {
   return (await blob).arrayBuffer();
 }
 
-// how to extend URl with database types
+// how to extend URL with database types
 type storeImageInput = {
   url: string;
 } & Database['public']['Tables']['generated_images']['Insert'];
