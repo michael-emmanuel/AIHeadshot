@@ -56,7 +56,7 @@ const renderPricingButton = ({
   handleStripeCheckout: (price: Price) => Promise<void>;
   handleStripePortalRequest: () => Promise<void>;
 }) => {
-  // case 1: user has active sub for this product
+  // case 1: user has active subscription for this product
   if (
     user &&
     subscription &&
