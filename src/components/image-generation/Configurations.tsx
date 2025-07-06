@@ -158,7 +158,7 @@ const Configurations = ({ userModels, model_id }: ConfigurationsProps) => {
                         <InfoIcon className='w-4 h-4' />
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p>You can select any model from the dropdown menu</p>
+                        <p>Select any model from the dropdown menu</p>
                       </TooltipContent>
                     </Tooltip>
                   </FormLabel>
