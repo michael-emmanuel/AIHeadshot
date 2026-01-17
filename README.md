@@ -76,6 +76,5 @@ npm start
 
 #### This project expects API routes to connect to an AI image generation service
 
-- OpenAI Images API
 - Replicate (Stable Diffusion / DreamBooth)
 - Custom fine-tuned diffusion models
