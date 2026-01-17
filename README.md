@@ -71,10 +71,3 @@ npm run dev
 npm run build
 npm start
 ```
-
-### AI Integration
-
-#### This project expects API routes to connect to an AI image generation service
-
-- Replicate (Stable Diffusion / DreamBooth)
-- Custom fine-tuned diffusion models
