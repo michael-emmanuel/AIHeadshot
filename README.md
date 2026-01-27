@@ -14,8 +14,6 @@ This repository contains a web application built with **Next.js + TypeScript + T
 - Responsive UI built with Tailwind
 - Designed to integrate with AI image generation APIs (OpenAI, Replicate, etc.)
 
-> This project focuses on the frontend and workflow. You must integrate an AI backend or API to generate headshots.
-
 ---
 
 ## 🧠 Tech Stack
